@@ -1,0 +1,1 @@
+export type OnDutyCallback = (user: any) => void;
