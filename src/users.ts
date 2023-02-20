@@ -1,17 +1,22 @@
-export class Users {
-    private userList: any[];
+import { User } from "./types/users";
+
   
-    constructor() {
-      // Set up the list of eligible users
-      this.userList = [
-        { username: 'Bob', chatId: '123' },
-        { username: 'Alice', chatId: '456' },
-        { username: 'Charlie', chatId: '789' },
-      ];
-    }
+export const users: User[] = [
+    { name: 'Льоша/Ліза', id: 0 },
+    { name: 'Діма/Аня', id: 1 },
+  ];
+ 
+
+const startDay = new Date("2023-02-17"); 
+
+export function getCurrentDuty(): User {
+    const today = new Date();
+    const timeDiff = Math.abs(today.getTime() - startDay.getTime());
+    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
   
-    public getUserByIndex(index: number): any {
-      // Get the user object for the user at the given index
-      return this.userList[index];
-    }
+    // Calculate the index of the person on duty
+    const index = daysDiff % 2;
+  
+    // Return the ID of the person on duty
+    return users[index];
   }

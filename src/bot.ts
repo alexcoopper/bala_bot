@@ -1,4 +1,7 @@
-import { Telegraf } from 'telegraf';
+import { Telegraf, Context } from 'telegraf';
+import { onDutyNotification } from './notifications';
+import { getCurrentDuty, users } from './users';
+const nodeCron = require("node-cron");
 
 export class Bot {
   private bot: Telegraf;
@@ -8,12 +11,33 @@ export class Bot {
   }
 
   public start(): void {
-    this.bot.start((ctx) => ctx.reply('Welcome to the Balanenko family assistant bot!'));
-    this.bot.help((ctx) => ctx.reply('This bot is here to help you keep track of who is on duty each day.'));
+    this.bot.start((ctx) => ctx.reply('Вітаю, я бот-асистент сімї Баланенко!'));
+    this.bot.help((ctx) => ctx.reply('Цей бот робить нагадування нам.'));
+    this.bot.command('duty', (ctx: Context) => {
+        const chatId = ctx.message?.chat.id || 0;
+        ctx.telegram.sendMessage(chatId, this.OnDutyNotification());
+      });
+
+    this.bot.command('notify', (ctx: Context) => {
+      nodeCron.schedule('* 30 10 * * *', () => {
+          const message = `Привіт, це дейлі нагадування!.
+          ${this.OnDutyNotification()}`;
+      
+          const chatId = ctx.message?.chat.id || 0;
+          this.bot.telegram.sendMessage(chatId, message);
+      });
+    });
+
     this.bot.launch();
   }
 
-  public sendMessage(message: string): void {
-    this.bot.telegram.sendMessage(process.env.CHAT_ID, message);
+  private OnDutyNotification(): string {
+    const currentDuty = getCurrentDuty();
+    const second = users.find(x=> x.id != currentDuty.id)?.name || "";
+    return onDutyNotification(currentDuty.name, second);
   }
 }
+
+
+
+  
